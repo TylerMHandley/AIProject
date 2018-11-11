@@ -15,8 +15,9 @@ import expectimax
 import minimax
 import reflex
 import hiddenMarkov
+import randomagent
 #algorithms = {"reflex": reflex.reflex, "hiddenMarkov": hiddenMarkov.hiddenMarkov, "minimax":minimax.minimax, "expectimax": expectimax.expectimax}
-algorithms = {"reflex": reflex.reflex}
+algorithms = {"reflex": reflex.reflex, 'random': randomagent.randommove}
 assert len(sys.argv) == 4, "Wrong number of arguments, the form is: mapSize, agent algorithm, enemy alogrithm" 
 
 
@@ -327,21 +328,20 @@ while True:
     
     agent_grid = agent_ob.get(u'floor3x3F', 0)
     enemy_grid = enemy_ob.get(u'floor3x3F', 0)
-    if agent_grid != 0:
-        print(agent_grid)
-    # agentMoveString, agentBreakIndex = agentAlgo(agent_host1, agent_state, enemy_position, agent_grid)
-    # enemyMoveString, enemyBreakIndex = enemyAlgo(agent_host2, enemy_state, agent_position, enemy_grid)
+
+    agentMoveString, agentBreakIndex = agentAlgo(agent_host1, agent_state, enemy_position, agent_grid)
+    enemyMoveString, enemyBreakIndex = enemyAlgo(agent_host2, enemy_state, agent_position, enemy_grid)
     # #Agent Turn to Break
-    # attack(agent_host1, agentBreakIndex)
+    attack(agent_host1, agentBreakIndex)
     
     # #Enemy Turn to Move
-    # movement(agent_host2, enemyMoveString)
+    movement(agent_host2, enemyMoveString)
 
     # #Enemy Turn to Break
-    # attack(agent_host2, enemyBreakIndex)
+    attack(agent_host2, enemyBreakIndex, enemy=True)
     
     # #Agent Turn to Move
-    # movement(agent_host1, agentMoveString)
+    movement(agent_host1, agentMoveString)
 
 
 
