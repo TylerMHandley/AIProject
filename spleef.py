@@ -75,6 +75,16 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 </AgentStart>
                 <AgentHandlers>
                   <ObservationFromFullStats/>
+                  <ObservationFromGrid>
+                      <Grid name="floor3x3W">
+                        <min x="-1" y="0" z="-1"/>
+                        <max x="1" y="0" z="1"/>
+                      </Grid>
+                      <Grid name="floor3x3F">
+                        <min x="-1" y="-1" z="-1"/>
+                        <max x="1" y="-1" z="1"/>
+                      </Grid>
+                  </ObservationFromGrid>
                   <DiscreteMovementCommands/>
                 </AgentHandlers>
               </AgentSection>
@@ -91,6 +101,16 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <AgentHandlers>
                   <ObservationFromFullStats/>
                   <DiscreteMovementCommands/>
+                  <ObservationFromGrid>
+                      <Grid name="floor3x3W">
+                        <min x="-1" y="0" z="-1"/>
+                        <max x="1" y="0" z="1"/>
+                      </Grid>
+                      <Grid name="floor3x3F">
+                        <min x="-1" y="-1" z="-1"/>
+                        <max x="1" y="-1" z="1"/>
+                      </Grid>
+                  </ObservationFromGrid>
                   <RewardForTouchingBlockType>
                     <Block reward="-100.0" type="lava" behaviour="onceOnly"/>
                   </RewardForTouchingBlockType>
@@ -305,22 +325,23 @@ while True:
     agent_position = (agent_ob["XPos"], agent_ob["ZPos"])
     enemy_position = (enemy_ob["XPos"], enemy_ob["ZPos"])
     
-    agent_grid = agent_ob.get(u'floor3x3', 0)
-    enemy_grid = enemy_ob.get(u'floor3x3', 0)
-
-    agentMoveString, agentBreakIndex = agentAlgo(agent_host1, agent_state, enemy_position, agent_grid)
-    enemyMoveString, enemyBreakIndex = enemyAlgo(agent_host2, enemy_state, agent_position, enemy_grid)
-    #Agent Turn to Break
-    attack(agent_host1, agentBreakIndex)
+    agent_grid = agent_ob.get(u'floor3x3F', 0)
+    enemy_grid = enemy_ob.get(u'floor3x3F', 0)
+    if agent_grid != 0:
+        print(agent_grid)
+    # agentMoveString, agentBreakIndex = agentAlgo(agent_host1, agent_state, enemy_position, agent_grid)
+    # enemyMoveString, enemyBreakIndex = enemyAlgo(agent_host2, enemy_state, agent_position, enemy_grid)
+    # #Agent Turn to Break
+    # attack(agent_host1, agentBreakIndex)
     
-    #Enemy Turn to Move
-    movement(agent_host2, enemyMoveString)
+    # #Enemy Turn to Move
+    # movement(agent_host2, enemyMoveString)
 
-    #Enemy Turn to Break
-    attack(agent_host2, enemyBreakIndex)
+    # #Enemy Turn to Break
+    # attack(agent_host2, enemyBreakIndex)
     
-    #Agent Turn to Move
-    movement(agent_host1, agentMoveString)
+    # #Agent Turn to Move
+    # movement(agent_host1, agentMoveString)
 
 
 
