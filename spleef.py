@@ -61,7 +61,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                     <DrawCuboid x1="1" y1="40" z1="1" x2='''+ '"'+ map_size + '"'+ ''' y2="44" z2='''+ '"'+ map_size+ '"' +''' type="lava" />           <!-- lava floor -->
                     <DrawCuboid x1="1"  y1="46" z1="1"  x2='''+ '"'+ map_size+ '"'+ ''' y2="46" z2='''+ '"'+ map_size+ '"' +''' type="snow" />
                   </DrawingDecorator>
-                  <ServerQuitFromTimeUp timeLimitMs="300000"/>
+                  <ServerQuitFromTimeUp timeLimitMs="50000"/>
                   
                 </ServerHandlers>
               </ServerSection>
@@ -207,9 +207,9 @@ def attack(ah, index, enemy=False):
     #We are going to make it so the agent can only break the blocks immediately around them. 
     #So a location will be one of the 8 locations around it  
     #Enemy starts facing north (1), Agent starts facing south (3)
-    # 0 1 0
-    # 4 X 2
-    # 0 3 0
+    #  Enemy: 0 1 0  Agent: 0 3 0
+    #         4 X 2         2 X 4
+    #         0 3 0         0 1 0
     if enemy:
         if index ==1:
             # print("Index 1")
@@ -244,6 +244,9 @@ def attack(ah, index, enemy=False):
             ah.sendCommand("turn -1")
             time.sleep(0.1)
     else:
+        # Agent: 0 3 0
+        #        2 X 4
+        #        0 1 0
         if index ==3:
             # print("Index 3")
             ah.sendCommand("attack 1")
@@ -264,7 +267,7 @@ def attack(ah, index, enemy=False):
             time.sleep(0.1)
             ah.sendCommand("turn 1")
             time.sleep(0.1)
-        if index == 3:
+        if index == 1:
             # print("Index 3")
             ah.sendCommand("turn 1")
             time.sleep(0.1)
@@ -303,6 +306,8 @@ Sample Observation:
 # attack(agent_host2, 2, enemy=True)
 agent_score = 0
 #count = 0
+agent_ob = None
+enemy_ob = None
 while True:
     #Scores should decrease with time and get a bonus if they win
     agent_score-=1
@@ -311,26 +316,38 @@ while True:
     if agent_state.number_of_observations_since_last_state > 0:
         agent_ob = json.loads(agent_state.observations[-1].text)
 
-    if agent_state.number_of_observations_since_last_state > 0:
+    if enemy_state.number_of_observations_since_last_state > 0:
         enemy_ob = json.loads(enemy_state.observations[-1].text)
-
-    if agent_ob["Life"] == 0.0:
-        print("Enemy Won!")
-        agent_score-=100
-        break
-    if enemy_ob["Life"] == 0.0:
-        print("Agent Won!")
-        agent_score+=100
-        break
+    if agent_ob is None or enemy_ob is None:
+        continue
+    
+    
+    # if agent_ob["Life"] == 0.0:
+        # print("Enemy Won!")
+        # agent_score-=100
+        # break
+    # if enemy_ob["Life"] == 0.0:
+        # print("Agent Won!")
+        # agent_score+=100
+        # break
     
     agent_position = (agent_ob["XPos"], agent_ob["ZPos"])
     enemy_position = (enemy_ob["XPos"], enemy_ob["ZPos"])
     
     agent_grid = agent_ob.get(u'floor3x3F', 0)
     enemy_grid = enemy_ob.get(u'floor3x3F', 0)
+    
+    if "lava" in agent_grid:
+        print("Enemy Won!")
+        agent_score-=100
+        break
+    if "lava" in enemy_grid:
+        print("Agent Won!")
+        agent_score+=100
+        break
 
-    agentMoveString, agentBreakIndex = agentAlgo(agent_host1, agent_state, enemy_position, agent_grid)
-    enemyMoveString, enemyBreakIndex = enemyAlgo(agent_host2, enemy_state, agent_position, enemy_grid)
+    agentMoveString, agentBreakIndex = agentAlgo(agent_host1, agent_position, enemy_position, agent_grid)
+    enemyMoveString, enemyBreakIndex = enemyAlgo(agent_host2, enemy_position, agent_position, enemy_grid)
     # #Agent Turn to Break
     attack(agent_host1, agentBreakIndex)
     

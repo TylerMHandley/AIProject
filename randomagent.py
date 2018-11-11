@@ -19,11 +19,16 @@ from random import *
 import numpy as np
 
 
-def randommove(agent, world_state, position, grid):
+def randommove(agent, agent_position, enemy_position, grid):
     time.sleep(0.1)
+    
     legalgrid = legalMoves(grid)
-    random = choice(legalgrid)
-
+    try:
+        random = choice(legalgrid)
+    except:
+        print("Banzai")
+        badgrid = badMoves(grid)
+        return choice(badgrid), 0
     randomindex = 0
     if len(legalgrid) != 0:
         randomindex2 = choice(legalgrid)
@@ -41,7 +46,7 @@ def randommove(agent, world_state, position, grid):
 
 def legalMoves(grid):
     blocks = []
-
+    
     if grid[3] == u'snow':
         blocks.append("west")
     if grid[1] == u'snow':
@@ -49,5 +54,18 @@ def legalMoves(grid):
     if grid[5] == u'snow':
         blocks.append("east")
     if grid[7] == u'snow':
+        blocks.append("south")
+    return blocks
+    
+def badMoves(grid):
+    blocks = []
+    
+    if grid[3] != u'stone':
+        blocks.append("west")
+    if grid[1] != u'stone':
+        blocks.append("north")
+    if grid[5] != u'stone':
+        blocks.append("east")
+    if grid[7] != u'stone':
         blocks.append("south")
     return blocks
