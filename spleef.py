@@ -282,13 +282,17 @@ Sample Observation:
 # attack(agent_host2, 2, enemy=True)
 agent_score = 0
 #count = 0
-while true:
+while True:
     #Scores should decrease with time and get a bonus if they win
     agent_score-=1
-    agent_state = agent_host1.getWorldState()
-    enemy_state = agent_host2.getWorldState()
-    agent_ob = json.loads(agent_state.observations[-1].text)
-    enemy_ob = json.loads(enemy_state.observations[-1].text)
+    agent_state = agent_host1.peekWorldState()
+    enemy_state = agent_host2.peekWorldState()
+    if agent_state.number_of_observations_since_last_state > 0:
+        agent_ob = json.loads(agent_state.observations[-1].text)
+
+    if agent_state.number_of_observations_since_last_state > 0:
+        enemy_ob = json.loads(enemy_state.observations[-1].text)
+
     if agent_ob["Life"] == 0.0:
         print("Enemy Won!")
         agent_score-=100
@@ -303,12 +307,7 @@ while true:
     
     agent_grid = agent_ob.get(u'floor3x3', 0)
     enemy_grid = enemy_ob.get(u'floor3x3', 0)
-    
-    agent_position = (agent_ob["XPos"], agent_ob["ZPos"])
-    enemy_position = (enemy_ob["XPos"], enemy_ob["ZPos"])
-    
-    agent_grid = agent_ob.get(u'floor3x3', 0)
-    enemy_grid = enemy_ob.get(u'floor3x3', 0)
+
     agentMoveString, agentBreakIndex = agentAlgo(agent_host1, agent_state, enemy_position, agent_grid)
     enemyMoveString, enemyBreakIndex = enemyAlgo(agent_host2, enemy_state, agent_position, enemy_grid)
     #Agent Turn to Break
