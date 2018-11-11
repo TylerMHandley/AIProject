@@ -189,16 +189,13 @@ def attack(ah, index, enemy=False):
     # 0 1 0
     # 4 X 2
     # 0 3 0
-    #print("Called with index {}".format(index))
     if enemy:
         if index ==1:
-            print("Index 1")
-            # time.sleep(0.1)
+            # print("Index 1")
             ah.sendCommand("attack 1")
             time.sleep(0.1)
         if index ==2:
-            print("Index 2")
-            # time.sleep(0.1)
+            # print("Index 2")
             ah.sendCommand("turn 1")
             time.sleep(0.1)
             ah.sendCommand("attack 1")
@@ -206,8 +203,7 @@ def attack(ah, index, enemy=False):
             ah.sendCommand("turn -1")
             time.sleep(0.1)
         if index == 4:
-            print("Index 4")
-            # time.sleep(0.1)
+            # print("Index 4")
             ah.sendCommand("turn -1")
             time.sleep(0.1)
             ah.sendCommand("attack 1")
@@ -215,8 +211,7 @@ def attack(ah, index, enemy=False):
             ah.sendCommand("turn 1")
             time.sleep(0.1)
         if index == 3:
-            print("Index 3")
-            # time.sleep(0.1)
+            # print("Index 3")
             ah.sendCommand("turn 1")
             time.sleep(0.1)
             ah.sendCommand("turn 1")
@@ -229,13 +224,11 @@ def attack(ah, index, enemy=False):
             time.sleep(0.1)
     else:
         if index ==3:
-            print("Index 3")
-            # time.sleep(0.1)
+            # print("Index 3")
             ah.sendCommand("attack 1")
             time.sleep(0.1)
         if index ==4:
-            # time.sleep(0.1)
-            print("Index 4")
+            # print("Index 4")
             ah.sendCommand("turn 1")
             time.sleep(0.1)
             ah.sendCommand("attack 1")
@@ -243,8 +236,7 @@ def attack(ah, index, enemy=False):
             ah.sendCommand("turn -1")
             time.sleep(0.1)
         if index == 2:
-            print("Index 2")
-            # time.sleep(0.1)
+            # print("Index 2")
             ah.sendCommand("turn -1")
             time.sleep(0.1)
             ah.sendCommand("attack 1")
@@ -252,8 +244,7 @@ def attack(ah, index, enemy=False):
             ah.sendCommand("turn 1")
             time.sleep(0.1)
         if index == 3:
-            print("Index 3")
-            # time.sleep(0.1)
+            # print("Index 3")
             ah.sendCommand("turn 1")
             time.sleep(0.1)
             ah.sendCommand("turn 1")
@@ -292,8 +283,6 @@ Sample Observation:
 agent_score = 0
 #count = 0
 while true:
-    #time.sleep(0.5)
-    #count += 1
     #Scores should decrease with time and get a bonus if they win
     agent_score-=1
     agent_state = agent_host1.getWorldState()
@@ -320,13 +309,6 @@ while true:
     
     agent_grid = agent_ob.get(u'floor3x3', 0)
     enemy_grid = enemy_ob.get(u'floor3x3', 0)
-    
-    
-    
-    # movement(agent_host1, "south")
-    # movement(agent_host2, "north")
-    time.sleep(1)
-    '''
     agentMoveString, agentBreakIndex = agentAlgo(agent_host1, agent_state, enemy_position, agent_grid)
     enemyMoveString, enemyBreakIndex = enemyAlgo(agent_host2, enemy_state, agent_position, enemy_grid)
     #Agent Turn to Break
@@ -340,13 +322,6 @@ while true:
     
     #Agent Turn to Move
     movement(agent_host1, agentMoveString)
-    '''
-# agent_sum = 0
-# for reward in agent_state.rewards:
-    # agent_sum += reward
-# enemy_sum = 0
-# for reward in agent_state.rewards:
-    # enemy_sum += reward
-# print("Agent Reward: {} \nEnemy Reward: {}".format(agent_sum, enemy_sum))
+
 
 
