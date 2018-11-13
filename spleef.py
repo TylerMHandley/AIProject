@@ -209,20 +209,23 @@ def movement(ah, direction, pos):
         position = (pos[0]+1, pos[1])
     time.sleep(0.1)
     return position
-def attack(ah, index, pos, enemy=False):
+def attack(ah, index, pos, map, enemy=False):
     #We are going to make it so the agent can only break the blocks immediately around them. 
     #So a location will be one of the 8 locations around it  
     #Enemy starts facing north (1), Agent starts facing south (3)
     #  Enemy: 0 1 0  Agent: 0 3 0
     #         4 X 2         2 X 4
     #         0 3 0         0 1 0
-    x,y = pos
+    x,y = math.floor(pos[0]),math.floor(pos[1])
+    print("Player position: {},{} Direction: {}".format(x,y, index))
+    did_Break = False
     if enemy:
         if index =="north":
             # print("Index 1")
             ah.sendCommand("attack 1")
             time.sleep(0.1)
             y-=1
+            did_Break = True
         if index =="east":
             # print("Index 2")
             ah.sendCommand("turn 1")
@@ -232,6 +235,7 @@ def attack(ah, index, pos, enemy=False):
             ah.sendCommand("turn -1")
             time.sleep(0.1)
             x+=1
+            did_Break = True
         if index == "west":
             # print("Index 4")
             ah.sendCommand("turn -1")
@@ -241,6 +245,7 @@ def attack(ah, index, pos, enemy=False):
             ah.sendCommand("turn 1")
             time.sleep(0.1)
             x-=1
+            did_Break = True
         if index == "south":
             # print("Index 3")
             ah.sendCommand("turn 1")
@@ -254,6 +259,7 @@ def attack(ah, index, pos, enemy=False):
             ah.sendCommand("turn -1")
             time.sleep(0.1)
             y+=1
+            did_Break = True
     else:
         # Agent: 0 3 0
         #        2 X 4
@@ -263,6 +269,7 @@ def attack(ah, index, pos, enemy=False):
             ah.sendCommand("attack 1")
             time.sleep(0.1)
             y+=1
+            did_Break = True
         if index =="west":
             # print("Index 4")
             ah.sendCommand("turn 1")
@@ -272,6 +279,7 @@ def attack(ah, index, pos, enemy=False):
             ah.sendCommand("turn -1")
             time.sleep(0.1)
             x-=1
+            did_Break = True
         if index == "east":
             # print("Index 2")
             ah.sendCommand("turn -1")
@@ -281,6 +289,7 @@ def attack(ah, index, pos, enemy=False):
             ah.sendCommand("turn 1")
             time.sleep(0.1)
             x+=1
+            did_Break = True
         if index == "north":
             # print("Index 3")
             ah.sendCommand("turn 1")
@@ -294,7 +303,10 @@ def attack(ah, index, pos, enemy=False):
             ah.sendCommand("turn -1")
             time.sleep(0.1)
             y-=1
-    map[x-1,y-1] = False
+            did_Break = True
+    print(x-1,y-1)
+    if did_Break:
+        map[x-1][y-1] = False
 '''
 Sample Observation:
 {"DistanceTravelled":0,"TimeAlive":50,"MobsKilled":0,"PlayersKilled":0,"DamageTaken":0,"DamageDealt":0,
@@ -324,8 +336,8 @@ while True:
         enemy_ob = json.loads(enemy_state.observations[-1].text)
     if agent_ob is None or enemy_ob is None:
         continue
-
-    
+    if agent_state.is_mission_running == False:
+        break
     agent_position = (agent_ob["XPos"], agent_ob["ZPos"])
     enemy_position = (enemy_ob["XPos"], enemy_ob["ZPos"])
     
