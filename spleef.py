@@ -62,7 +62,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                     <DrawCuboid x1="1" y1="40" z1="1" x2='''+ '"'+ map_size + '"'+ ''' y2="44" z2='''+ '"'+ map_size+ '"' +''' type="lava" />           <!-- lava floor -->
                     <DrawCuboid x1="1"  y1="46" z1="1"  x2='''+ '"'+ map_size+ '"'+ ''' y2="46" z2='''+ '"'+ map_size+ '"' +''' type="snow" />
                   </DrawingDecorator>
-                  <ServerQuitFromTimeUp timeLimitMs="50000"/>
+                  <ServerQuitFromTimeUp timeLimitMs="30000"/>
                   
                 </ServerHandlers>
               </ServerSection>
@@ -194,28 +194,35 @@ safeStartMission(agent_host1, my_mission, client_pool, my_mission_record, 0, '' 
 safeStartMission(agent_host2, my_mission, client_pool, my_mission_record, 1, '' )
 safeWaitForStart([agent_host1, agent_host2])
 
-def movement(ah, direction):
+def movement(ah, direction, pos):
     if direction == "north":
         ah.sendCommand("movenorth 1")
+        position = (pos[0], pos[1]-1)
     if direction == "south":
         ah.sendCommand("movesouth 1")
+        position = (pos[0], pos[1]+1)
     if direction == "west":
         ah.sendCommand("movewest 1")
+        position = (pos[0]-1, pos[1])
     if direction == "east":
         ah.sendCommand("moveeast 1")
+        position = (pos[0]+1, pos[1])
     time.sleep(0.1)
-def attack(ah, index, enemy=False):
+    return position
+def attack(ah, index, pos, enemy=False):
     #We are going to make it so the agent can only break the blocks immediately around them. 
     #So a location will be one of the 8 locations around it  
     #Enemy starts facing north (1), Agent starts facing south (3)
     #  Enemy: 0 1 0  Agent: 0 3 0
     #         4 X 2         2 X 4
     #         0 3 0         0 1 0
+    x,y = pos
     if enemy:
         if index =="north":
             # print("Index 1")
             ah.sendCommand("attack 1")
             time.sleep(0.1)
+            y-=1
         if index =="east":
             # print("Index 2")
             ah.sendCommand("turn 1")
@@ -224,6 +231,7 @@ def attack(ah, index, enemy=False):
             time.sleep(0.1)
             ah.sendCommand("turn -1")
             time.sleep(0.1)
+            x+=1
         if index == "west":
             # print("Index 4")
             ah.sendCommand("turn -1")
@@ -232,6 +240,7 @@ def attack(ah, index, enemy=False):
             time.sleep(0.1)
             ah.sendCommand("turn 1")
             time.sleep(0.1)
+            x-=1
         if index == "south":
             # print("Index 3")
             ah.sendCommand("turn 1")
@@ -244,6 +253,7 @@ def attack(ah, index, enemy=False):
             time.sleep(0.1)
             ah.sendCommand("turn -1")
             time.sleep(0.1)
+            y+=1
     else:
         # Agent: 0 3 0
         #        2 X 4
@@ -252,6 +262,7 @@ def attack(ah, index, enemy=False):
             # print("Index 3")
             ah.sendCommand("attack 1")
             time.sleep(0.1)
+            y+=1
         if index =="west":
             # print("Index 4")
             ah.sendCommand("turn 1")
@@ -260,6 +271,7 @@ def attack(ah, index, enemy=False):
             time.sleep(0.1)
             ah.sendCommand("turn -1")
             time.sleep(0.1)
+            x-=1
         if index == "east":
             # print("Index 2")
             ah.sendCommand("turn -1")
@@ -268,6 +280,7 @@ def attack(ah, index, enemy=False):
             time.sleep(0.1)
             ah.sendCommand("turn 1")
             time.sleep(0.1)
+            x+=1
         if index == "north":
             # print("Index 3")
             ah.sendCommand("turn 1")
@@ -280,6 +293,8 @@ def attack(ah, index, enemy=False):
             time.sleep(0.1)
             ah.sendCommand("turn -1")
             time.sleep(0.1)
+            y-=1
+    map[x-1,y-1] = False
 '''
 Sample Observation:
 {"DistanceTravelled":0,"TimeAlive":50,"MobsKilled":0,"PlayersKilled":0,"DamageTaken":0,"DamageDealt":0,
@@ -288,27 +303,15 @@ Sample Observation:
 
 '''
 
-
- 
-
-# movement(agent_host1, "south")
-# movement(agent_host2, "north")
-# movement(agent_host1, "south")
-# movement(agent_host2, "north")
-# movement(agent_host1, "east")
-# movement(agent_host2, "west")
-# attack(agent_host1, 1)
-# attack(agent_host2, 3, enemy=True)
-# attack(agent_host1, 2)
-# attack(agent_host2, 4, enemy=True)
-# attack(agent_host1, 3)
-# attack(agent_host2, 1, enemy=True)
-# attack(agent_host1, 4)
-# attack(agent_host2, 2, enemy=True)
 agent_score = 0
 #count = 0
 agent_ob = None
 enemy_ob = None
+
+map = [ [True for i in range(0,int(map_size))] for j in range(0,int(map_size))]
+# for i in map:
+    # print(i)
+
 while True:
     #Scores should decrease with time and get a bonus if they win
     agent_score-=1
@@ -321,16 +324,7 @@ while True:
         enemy_ob = json.loads(enemy_state.observations[-1].text)
     if agent_ob is None or enemy_ob is None:
         continue
-    
-    
-    # if agent_ob["Life"] == 0.0:
-        # print("Enemy Won!")
-        # agent_score-=100
-        # break
-    # if enemy_ob["Life"] == 0.0:
-        # print("Agent Won!")
-        # agent_score+=100
-        # break
+
     
     agent_position = (agent_ob["XPos"], agent_ob["ZPos"])
     enemy_position = (enemy_ob["XPos"], enemy_ob["ZPos"])
@@ -346,20 +340,23 @@ while True:
         print("Agent Won!")
         agent_score+=100
         break
-
-    agentMoveString, agentBreakIndex = agentAlgo(agent_host1, agent_position, enemy_position, agent_grid)
-    enemyMoveString, enemyBreakIndex = enemyAlgo(agent_host2, enemy_position, agent_position, enemy_grid)
+    
+    
+    agentMoveString, agentBreakIndex = agentAlgo(agent_host1, agent_position, enemy_position, agent_grid, map)
+    enemyMoveString, enemyBreakIndex = enemyAlgo(agent_host2, enemy_position, agent_position, enemy_grid, map)
+    
     # #Agent Turn to Break
-    attack(agent_host1, agentBreakIndex)
+    attack(agent_host1, agentBreakIndex, agent_position, map)
     
     # #Enemy Turn to Move
-    movement(agent_host2, enemyMoveString)
-
+    pos = movement(agent_host2, enemyMoveString, enemy_position)
+    
     # #Enemy Turn to Break
-    attack(agent_host2, enemyBreakIndex, enemy=True)
+    attack(agent_host2, enemyBreakIndex, pos, map, enemy=True)
     
     # #Agent Turn to Move
-    movement(agent_host1, agentMoveString)
-
+    movement(agent_host1, agentMoveString, agent_position)
+for i in map:
+    print(i)
 
 

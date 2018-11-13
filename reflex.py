@@ -59,7 +59,8 @@ def reflex(agent, agent_position, enemy_position, grid):
     for i in range(0, len(scores)):
         if scores[i] > max[0]:
             max = (scores[i], direction[i])
-
+        if scores[i] == max[0]:
+            max = (scores[i], choice([max[1], direction[i]]))
     breakmax = (-math.inf, "")
     breaksecond = (-math.inf, 0)
     for i in range(0, len(breakscores)):
