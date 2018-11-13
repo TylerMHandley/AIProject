@@ -19,7 +19,7 @@ from random import *
 import numpy as np
 
 
-def reflex(agent, agent_position, enemy_position, grid):
+def reflex(agent, agent_position, enemy_position, grid, map):
     legalgrid = legalMoves(grid)
     x, y = agent_position
     north_score  = -math.inf
