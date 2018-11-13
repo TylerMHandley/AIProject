@@ -19,7 +19,7 @@ from random import *
 import numpy as np
 
 
-def randommove(agent, agent_position, enemy_position, grid):
+def randommove(agent, agent_position, enemy_position, grid, map):
     time.sleep(0.1)
     
     legalgrid = legalMoves(grid)
@@ -30,6 +30,7 @@ def randommove(agent, agent_position, enemy_position, grid):
         badgrid = badMoves(grid)
         return choice(badgrid), 0
     randomindex = 0
+    randomindex2 = 0
     if len(legalgrid) != 0:
         randomindex2 = choice(legalgrid)
         if len(legalgrid) == 1 or random == randomindex2:
@@ -43,6 +44,7 @@ def randommove(agent, agent_position, enemy_position, grid):
             # randomindex = 2
         # elif randomindex2 == 'west':
             # randomindex = 4
+
     return random, randomindex2
 
 def legalMoves(grid):
