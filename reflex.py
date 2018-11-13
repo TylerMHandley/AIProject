@@ -22,10 +22,18 @@ import numpy as np
 def reflex(agent, agent_position, enemy_position, grid):
     legalgrid = legalMoves(grid)
     x, y = agent_position
-    north_score = -math.inf
-    south_score = -math.inf
-    east_score = -math.inf
+    north_score  = -math.inf
+    north_break_score = -math.inf
+    south_score  = -math.inf
+    south_break_score = -math.inf
+    east_score  = -math.inf
+    east_break_score = -math.inf
     west_score = -math.inf
+    west_break_score = -math.inf
+    if len(legalgrid) == 0:
+        print("Banzai")
+        badgrid = badMoves(grid)
+        return choice(badgrid), 0
     if "north" in legalgrid:
         new_pos = (x, y - 1)
         north_score = chooseAction("north", agent, new_pos, enemy_position, grid)
@@ -43,12 +51,9 @@ def reflex(agent, agent_position, enemy_position, grid):
         new_pos = (x + 1, y)
         east_score = chooseAction("east", agent, new_pos, enemy_position, grid)
         east_break_score = chooseBreak(agent, new_pos, enemy_position, grid)
-    if len(legalgrid) == 0:
-        print("Banzai")
-        badgrid = badMoves(grid)
-        return choice(badgrid), 0
+    
     scores = [north_score, south_score, west_score, east_score]
-    breakscores = [north_score, south_score, west_score, east_score]
+    breakscores = [north_break_score, south_break_score, west_break_score, east_break_score]
     direction = ["north", "south", "west", "east"]
     max = (-math.inf, "")
     for i in range(0, len(scores)):
@@ -68,30 +73,29 @@ def reflex(agent, agent_position, enemy_position, grid):
             elif breakscores[i] > breaksecond[0]:
                 breaksecond = (breakscores[i], direction[i])
 
-    ### YOUR CODE HERE ###
 
     index = 0
-    if breakmax[1] == max[1] and manhattan_distance(agent_position, enemy_position) <= 5:
-        if breaksecond[1] == 'north':
-            index = 1
-        elif breaksecond[1] == 'south':
-            index = 3
-        elif breaksecond[1] == 'east':
-            index = 2
-        elif breaksecond[1] == 'west':
-            index = 4
-        print(index)
-        return max[1], index
-    elif breakmax[1] != max[1] and manhattan_distance(agent_position, enemy_position) <= 5:
-        if breakmax[1] == 'north':
-            index = 1
-        elif breakmax[1] == 'south':
-            index = 3
-        elif breakmax[1] == 'east':
-            index = 2
-        elif breakmax[1] == 'west':
-            index = 4
-        return max[1], index
+    if breakmax[1] == max[1] and manhattan_distance(agent_position, enemy_position) <= 4:
+        # if breaksecond[1] == 'north':
+            # index = 1
+        # elif breaksecond[1] == 'south':
+            # index = 3
+        # elif breaksecond[1] == 'east':
+            # index = 2
+        # elif breaksecond[1] == 'west':
+            # index = 4
+        #print(index)
+        return max[1], breaksecond[1]
+    elif breakmax[1] != max[1] and manhattan_distance(agent_position, enemy_position) <= 4:
+        # if breakmax[1] == 'north':
+            # index = 1
+        # elif breakmax[1] == 'south':
+            # index = 3
+        # elif breakmax[1] == 'east':
+            # index = 2
+        # elif breakmax[1] == 'west':
+            # index = 4
+        return max[1], breakmax[1]
     else:
         #print(max[0], max[1], "true")
         return max[1], 0

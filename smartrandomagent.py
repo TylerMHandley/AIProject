@@ -23,13 +23,18 @@ def randommove(agent, agent_position, enemy_position, grid):
     time.sleep(0.1)
     
     legalgrid = legalMoves(grid)
-    moves = ["north", "south", "east", "west"]
-    random = choice(moves)
+    try:
+        random = choice(legalgrid)
+    except:
+        print("Banzai")
+        badgrid = badMoves(grid)
+        return choice(badgrid), 0
     randomindex = 0
     if len(legalgrid) != 0:
         randomindex2 = choice(legalgrid)
         if len(legalgrid) == 1 or random == randomindex2:
-            randomindex = 0
+            randomindex2 = 0
+            #randomindex = 0
         # elif randomindex2 == 'north':
             # randomindex = 1
         # elif randomindex2 == 'south':
@@ -38,9 +43,8 @@ def randommove(agent, agent_position, enemy_position, grid):
             # randomindex = 2
         # elif randomindex2 == 'west':
             # randomindex = 4
-    return random, randomindex
+    return random, randomindex2
 
-       
 def legalMoves(grid):
     blocks = []
     

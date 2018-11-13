@@ -16,8 +16,9 @@ import minimax
 import reflex
 import hiddenMarkov
 import randomagent
+import smartrandomagent
 #algorithms = {"reflex": reflex.reflex, "hiddenMarkov": hiddenMarkov.hiddenMarkov, "minimax":minimax.minimax, "expectimax": expectimax.expectimax}
-algorithms = {"reflex": reflex.reflex, 'random': randomagent.randommove}
+algorithms = {"reflex": reflex.reflex, 'random': randomagent.randommove, 'smartrandom': smartrandomagent.randommove}
 assert len(sys.argv) == 4, "Wrong number of arguments, the form is: mapSize, agent algorithm, enemy alogrithm" 
 
 
@@ -211,11 +212,11 @@ def attack(ah, index, enemy=False):
     #         4 X 2         2 X 4
     #         0 3 0         0 1 0
     if enemy:
-        if index ==1:
+        if index =="north":
             # print("Index 1")
             ah.sendCommand("attack 1")
             time.sleep(0.1)
-        if index ==2:
+        if index =="east":
             # print("Index 2")
             ah.sendCommand("turn 1")
             time.sleep(0.1)
@@ -223,7 +224,7 @@ def attack(ah, index, enemy=False):
             time.sleep(0.1)
             ah.sendCommand("turn -1")
             time.sleep(0.1)
-        if index == 4:
+        if index == "west":
             # print("Index 4")
             ah.sendCommand("turn -1")
             time.sleep(0.1)
@@ -231,7 +232,7 @@ def attack(ah, index, enemy=False):
             time.sleep(0.1)
             ah.sendCommand("turn 1")
             time.sleep(0.1)
-        if index == 3:
+        if index == "south":
             # print("Index 3")
             ah.sendCommand("turn 1")
             time.sleep(0.1)
@@ -247,11 +248,11 @@ def attack(ah, index, enemy=False):
         # Agent: 0 3 0
         #        2 X 4
         #        0 1 0
-        if index ==3:
+        if index =="south":
             # print("Index 3")
             ah.sendCommand("attack 1")
             time.sleep(0.1)
-        if index ==4:
+        if index =="west":
             # print("Index 4")
             ah.sendCommand("turn 1")
             time.sleep(0.1)
@@ -259,7 +260,7 @@ def attack(ah, index, enemy=False):
             time.sleep(0.1)
             ah.sendCommand("turn -1")
             time.sleep(0.1)
-        if index == 2:
+        if index == "east":
             # print("Index 2")
             ah.sendCommand("turn -1")
             time.sleep(0.1)
@@ -267,7 +268,7 @@ def attack(ah, index, enemy=False):
             time.sleep(0.1)
             ah.sendCommand("turn 1")
             time.sleep(0.1)
-        if index == 1:
+        if index == "north":
             # print("Index 3")
             ah.sendCommand("turn 1")
             time.sleep(0.1)
