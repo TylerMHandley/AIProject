@@ -62,7 +62,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                     <DrawCuboid x1="1" y1="40" z1="1" x2='''+ '"'+ map_size + '"'+ ''' y2="44" z2='''+ '"'+ map_size+ '"' +''' type="lava" />           <!-- lava floor -->
                     <DrawCuboid x1="1"  y1="46" z1="1"  x2='''+ '"'+ map_size+ '"'+ ''' y2="46" z2='''+ '"'+ map_size+ '"' +''' type="snow" />
                   </DrawingDecorator>
-                  <ServerQuitFromTimeUp timeLimitMs="30000"/>
+                  <ServerQuitFromTimeUp timeLimitMs="15000"/>
                   
                 </ServerHandlers>
               </ServerSection>
@@ -127,8 +127,8 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 my_mission = MalmoPython.MissionSpec(missionXML, True)
 
 client_pool = MalmoPython.ClientPool()
-client_pool.add( MalmoPython.ClientInfo('127.0.0.1',10000) )
-client_pool.add( MalmoPython.ClientInfo('127.0.0.1',10001) )
+client_pool.add( MalmoPython.ClientInfo('127.0.0.1',10000))
+client_pool.add( MalmoPython.ClientInfo('127.0.0.1',10001))
 
 MalmoPython.setLogging("", MalmoPython.LoggingSeverityLevel.LOG_OFF)
 my_mission_record = MalmoPython.MissionRecordSpec()
@@ -305,8 +305,8 @@ def attack(ah, index, pos, map, enemy=False):
             y-=1
             did_Break = True
     print(x-1,y-1)
-    if did_Break:
-        map[x-1][y-1] = False
+    #if did_Break:
+     #   map[x-1][y-1] = False
 '''
 Sample Observation:
 {"DistanceTravelled":0,"TimeAlive":50,"MobsKilled":0,"PlayersKilled":0,"DamageTaken":0,"DamageDealt":0,
@@ -314,6 +314,39 @@ Sample Observation:
 "ZPos":5.5,"Pitch":50.0,"Yaw":180.0,"WorldTime":12000,"TotalTime":57}
 
 '''
+def safeStartMission(agent_host, my_mission, my_client_pool, my_mission_record, role, expId):
+    used_attempts = 0
+    max_attempts = 5
+    print("Calling startMission for role", role)
+    while True:
+        try:
+            # Attempt start:
+            agent_host.startMission(my_mission, my_client_pool, my_mission_record, role, expId)
+            break
+        except MalmoPython.MissionException as e:
+            errorCode = e.details.errorCode
+            if errorCode == MalmoPython.MissionErrorCode.MISSION_SERVER_WARMING_UP:
+                print("Server not quite ready yet - waiting...")
+                time.sleep(2)
+            elif errorCode == MalmoPython.MissionErrorCode.MISSION_INSUFFICIENT_CLIENTS_AVAILABLE:
+                print("Not enough available Minecraft instances running.")
+                used_attempts += 1
+                if used_attempts < max_attempts:
+                    print("Will wait in case they are starting up.", max_attempts - used_attempts, "attempts left.")
+                    time.sleep(2)
+            elif errorCode == MalmoPython.MissionErrorCode.MISSION_SERVER_NOT_FOUND:
+                print("Server not found - has the mission with role 0 been started yet?")
+                used_attempts += 1
+                if used_attempts < max_attempts:
+                    print("Will wait and retry.", max_attempts - used_attempts, "attempts left.")
+                    time.sleep(2)
+            else:
+                print("Waiting will not help here - bailing immediately.")
+                exit(1)
+        if used_attempts == max_attempts:
+            print("All chances used up - bailing now.")
+            exit(1)
+    print("startMission called okay.")
 
 agent_score = 0
 #count = 0
@@ -324,51 +357,89 @@ map = [ [True for i in range(0,int(map_size))] for j in range(0,int(map_size))]
 # for i in map:
     # print(i)
 
-while True:
-    #Scores should decrease with time and get a bonus if they win
-    agent_score-=1
-    agent_state = agent_host1.peekWorldState()
-    enemy_state = agent_host2.peekWorldState()
-    if agent_state.number_of_observations_since_last_state > 0:
-        agent_ob = json.loads(agent_state.observations[-1].text)
+num_repeats = 150
+max_retries = 3
+my_mission = MalmoPython.MissionSpec(missionXML, True)
+agentwin = 0
+total = 0
+for i in range(num_repeats):
 
-    if enemy_state.number_of_observations_since_last_state > 0:
-        enemy_ob = json.loads(enemy_state.observations[-1].text)
-    if agent_ob is None or enemy_ob is None:
-        continue
-    if agent_state.is_mission_running == False:
-        break
-    agent_position = (agent_ob["XPos"], agent_ob["ZPos"])
-    enemy_position = (enemy_ob["XPos"], enemy_ob["ZPos"])
-    
-    agent_grid = agent_ob.get(u'floor3x3F', 0)
-    enemy_grid = enemy_ob.get(u'floor3x3F', 0)
-    
-    if "lava" in agent_grid:
-        print("Enemy Won!")
-        agent_score-=100
-        break
-    if "lava" in enemy_grid:
-        print("Agent Won!")
-        agent_score+=100
-        break
-    
-    
-    agentMoveString, agentBreakIndex = agentAlgo(agent_host1, agent_position, enemy_position, agent_grid, map)
-    enemyMoveString, enemyBreakIndex = enemyAlgo(agent_host2, enemy_position, agent_position, enemy_grid, map)
-    
-    # #Agent Turn to Break
-    attack(agent_host1, agentBreakIndex, agent_position, map)
-    
-    # #Enemy Turn to Move
-    pos = movement(agent_host2, enemyMoveString, enemy_position)
-    
-    # #Enemy Turn to Break
-    attack(agent_host2, enemyBreakIndex, pos, map, enemy=True)
-    
-    # #Agent Turn to Move
-    movement(agent_host1, agentMoveString, agent_position)
-for i in map:
-    print(i)
+    while True:
+        print('1')
+        world_state = agent_host1.getWorldState()
+        world_state2 = agent_host2.getWorldState()
+        while not world_state.has_mission_begun:
+            print(".", end="")
+            time.sleep(0.1)
+            world_state = agent_host1.getWorldState()
+            for error in world_state.errors:
+                print("Error:", error.text)
+        while not world_state2.has_mission_begun:
+            print(".", end="")
+            time.sleep(0.1)
+            world_state2 = agent_host2.getWorldState()
+            for error in world_state2.errors:
+                print("Error:", error.text)
+        #Scores should decrease with time and get a bonus if they win
+        agent_score-=1
+        agent_state = agent_host1.peekWorldState()
+        enemy_state = agent_host2.peekWorldState()
+        print(agent_state)
+        print(enemy_state)
+        if agent_state.number_of_observations_since_last_state > 0:
+            agent_ob = json.loads(agent_state.observations[-1].text)
+        if enemy_state.number_of_observations_since_last_state > 0:
+            enemy_ob = json.loads(enemy_state.observations[-1].text)
+        if agent_ob is None or enemy_ob is None:
+            continue
+        if agent_state.is_mission_running == False:
+            break
+        agent_position = (agent_ob["XPos"], agent_ob["ZPos"])
+        enemy_position = (enemy_ob["XPos"], enemy_ob["ZPos"])
+        print('2')
+        agent_grid = agent_ob.get(u'floor3x3F', 0)
+        enemy_grid = enemy_ob.get(u'floor3x3F', 0)
+        print(agent_grid)
+        print(enemy_grid)
+        if "lava" in agent_grid:
+            print("Enemy Won!")
+            agent_score-=100
+            break
+        print('3')
+        if "lava" in enemy_grid:
+            print("Agent Won!")
+            agentwin+=1
+            agent_score+=100
+            break
+
+        agentMoveString, agentBreakIndex = agentAlgo(agent_host1, agent_position, enemy_position, agent_grid, map)
+        enemyMoveString, enemyBreakIndex = enemyAlgo(agent_host2, enemy_position, agent_position, enemy_grid, map)
+
+        # #Agent Turn to Break
+        attack(agent_host1, agentBreakIndex, agent_position, map)
+
+        # #Enemy Turn to Move
+        pos = movement(agent_host2, enemyMoveString, enemy_position)
+
+        # #Enemy Turn to Break
+        attack(agent_host2, enemyBreakIndex, pos, map, enemy=True)
+
+        # #Agent Turn to Move
+        movement(agent_host1, agentMoveString, agent_position)
+    total+=1
+    for i in map:
+        print(i)
+    my_mission_record = MalmoPython.MissionRecordSpec()
+    time.sleep(15)
+    try:
+        safeStartMission(agent_host1, my_mission, client_pool, my_mission_record, 0, 'aaaa')
+        time.sleep(2)
+        print('yes')
+        safeStartMission(agent_host2, my_mission, client_pool, my_mission_record, 1, 'aaaa')
+    except RuntimeError as e:
+        print("Error starting mission:", e)
+        exit(1)
+
+print("win chance for agent is: " + agentwin/total)
 
 
