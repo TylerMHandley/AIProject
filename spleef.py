@@ -217,7 +217,7 @@ def attack(ah, index, pos, map, enemy=False):
     #         4 X 2         2 X 4
     #         0 3 0         0 1 0
     x,y = math.floor(pos[0]),math.floor(pos[1])
-    print("Player position: {},{} Direction: {}".format(x,y, index))
+    #print("Player position: {},{} Direction: {}".format(x,y, index))
     did_Break = False
     if enemy:
         if index =="north":
@@ -304,7 +304,7 @@ def attack(ah, index, pos, map, enemy=False):
             time.sleep(0.1)
             y-=1
             did_Break = True
-    print(x-1,y-1)
+    #print(x-1,y-1)
     #if did_Break:
      #   map[x-1][y-1] = False
 '''
@@ -357,15 +357,13 @@ map = [ [True for i in range(0,int(map_size))] for j in range(0,int(map_size))]
 # for i in map:
     # print(i)
 
-num_repeats = 150
+num_repeats = 3
 max_retries = 3
 my_mission = MalmoPython.MissionSpec(missionXML, True)
 agentwin = 0
 total = 0
 for i in range(num_repeats):
-
     while True:
-        print('1')
         world_state = agent_host1.getWorldState()
         world_state2 = agent_host2.getWorldState()
         while not world_state.has_mission_begun:
@@ -384,8 +382,6 @@ for i in range(num_repeats):
         agent_score-=1
         agent_state = agent_host1.peekWorldState()
         enemy_state = agent_host2.peekWorldState()
-        print(agent_state)
-        print(enemy_state)
         if agent_state.number_of_observations_since_last_state > 0:
             agent_ob = json.loads(agent_state.observations[-1].text)
         if enemy_state.number_of_observations_since_last_state > 0:
@@ -396,16 +392,12 @@ for i in range(num_repeats):
             break
         agent_position = (agent_ob["XPos"], agent_ob["ZPos"])
         enemy_position = (enemy_ob["XPos"], enemy_ob["ZPos"])
-        print('2')
         agent_grid = agent_ob.get(u'floor3x3F', 0)
         enemy_grid = enemy_ob.get(u'floor3x3F', 0)
-        print(agent_grid)
-        print(enemy_grid)
         if "lava" in agent_grid:
             print("Enemy Won!")
             agent_score-=100
             break
-        print('3')
         if "lava" in enemy_grid:
             print("Agent Won!")
             agentwin+=1
@@ -427,19 +419,18 @@ for i in range(num_repeats):
         # #Agent Turn to Move
         movement(agent_host1, agentMoveString, agent_position)
     total+=1
-    for i in map:
-        print(i)
+    #for i in map:
+        #print(i)
     my_mission_record = MalmoPython.MissionRecordSpec()
     time.sleep(15)
     try:
         safeStartMission(agent_host1, my_mission, client_pool, my_mission_record, 0, 'aaaa')
         time.sleep(2)
-        print('yes')
         safeStartMission(agent_host2, my_mission, client_pool, my_mission_record, 1, 'aaaa')
     except RuntimeError as e:
         print("Error starting mission:", e)
         exit(1)
 
-print("win chance for agent is: " + agentwin/total)
+print("win chance for agent is: ", agentwin/total)
 
 
