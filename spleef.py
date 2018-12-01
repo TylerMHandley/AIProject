@@ -33,7 +33,8 @@ def run(size, algo1, algo2):
     agent_host1 = MalmoPython.AgentHost()
     agent_host2 = MalmoPython.AgentHost()
     #map_size = str(sys.argv[1])
-    map_size = size
+    map_size = int(size)
+    map_minus = str(map_size - 1)
     agentAlgo = algorithms[algo1]
     enemyAlgo = algorithms[algo2]
     #agentAlgo =  algorithms[sys.argv[2]]
@@ -63,9 +64,9 @@ def run(size, algo1, algo2):
                       <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1"/>
                       <DrawingDecorator>
                         <!-- coordinates for cuboid are inclusive -->
-                        <DrawCuboid x1="1" y1="45" z1="1" x2=''' + '"' + map_size + '"' + ''' y2="300" z2=''' + '"'+ map_size + '"'+  ''' type="air" />            <!-- limits of our arena -->
-                        <DrawCuboid x1="1" y1="40" z1="1" x2='''+ '"'+ map_size + '"'+ ''' y2="44" z2='''+ '"'+ map_size+ '"' +''' type="lava" />           <!-- lava floor -->
-                        <DrawCuboid x1="1"  y1="46" z1="1"  x2='''+ '"'+ map_size+ '"'+ ''' y2="46" z2='''+ '"'+ map_size+ '"' +''' type="snow" />
+                        <DrawCuboid x1="0" y1="45" z1="0" x2=''' + '"' + map_minus + '"' + ''' y2="300" z2=''' + '"'+ map_minus + '"'+  ''' type="air" />            <!-- limits of our arena -->
+                        <DrawCuboid x1="0" y1="40" z1="0" x2='''+ '"'+ map_minus + '"'+ ''' y2="44" z2='''+ '"'+ map_minus+ '"' +''' type="lava" />           <!-- lava floor -->
+                        <DrawCuboid x1="0"  y1="46" z1="0"  x2='''+ '"'+ map_minus  + '"'+ ''' y2="46" z2='''+ '"'+ map_minus + '"' +''' type="snow" />
                       </DrawingDecorator>
                       <ServerQuitFromTimeUp timeLimitMs="30000"/>
                       
@@ -78,7 +79,7 @@ def run(size, algo1, algo2):
                         <Inventory>
                             <InventoryItem slot="0" type="diamond_shovel"/>
                         </Inventory>
-                        <Placement x="1.5" y="47.0" z="1.5" pitch="50" yaw="0"/>
+                        <Placement x="0.5" y="47.0" z="0.5" pitch="50" yaw="0"/>
                     </AgentStart>
                     <AgentHandlers>
                       <ObservationFromFullStats/>
@@ -102,7 +103,7 @@ def run(size, algo1, algo2):
                         <Inventory>
                             <InventoryItem slot="0" type="diamond_shovel"/>
                         </Inventory>
-                        <Placement x='''+ '"'+ str(float(map_size) + 0.5) + '"'+ ''' y="47.0" z='''+ '"'+ str(float(map_size) + 0.5)+ '"'+ ''' pitch="50" yaw="180"/>
+                        <Placement x='''+ '"'+ str(float(map_size) - 0.5) + '"'+ ''' y="47.0" z='''+ '"'+ str(float(map_size) - 0.5)+ '"'+ ''' pitch="50" yaw="180"/>
                     </AgentStart>
                     
                     <AgentHandlers>
@@ -310,8 +311,8 @@ def run(size, algo1, algo2):
                 y-=1
                 did_Break = True
         #print(x-1,y-1)
-        # if did_Break:
-            # map[x-1][y-1] = False
+        if did_Break:
+            map[x-1][y-1] = False
     '''
     Sample Observation:
     {"DistanceTravelled":0,"TimeAlive":50,"MobsKilled":0,"PlayersKilled":0,"DamageTaken":0,"DamageDealt":0,
@@ -366,16 +367,14 @@ def run(size, algo1, algo2):
         
         # #Agent Turn to Break
         attack(agent_host1, agentBreakIndex, agent_position, map)
-        
         # #Enemy Turn to Move
         pos = movement(agent_host2, enemyMoveString, enemy_position)
         
         # #Enemy Turn to Break
         attack(agent_host2, enemyBreakIndex, pos, map, enemy=True)
-        
         # #Agent Turn to Move
         movement(agent_host1, agentMoveString, agent_position)
-    # for i in map:
-        # print(i)
+    for i in map:
+        print(i)
     return 2
 
