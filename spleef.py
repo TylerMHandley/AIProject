@@ -17,11 +17,11 @@ import reflex
 import hiddenMarkov
 import randomagent
 import smartrandomagent
-    
+import AStarReflex
     
 def run(size, algo1, algo2):    
     #algorithms = {"reflex": reflex.reflex, "hiddenMarkov": hiddenMarkov.hiddenMarkov, "minimax":minimax.minimax, "expectimax": expectimax.expectimax}
-    algorithms = {"reflex": reflex.reflex, 'random': randomagent.randommove, 'smartrandom': smartrandomagent.randommove}
+    algorithms = {"reflex": reflex.reflex, 'random': randomagent.randommove, 'smartrandom': smartrandomagent.randommove, 'astarreflex': AStarReflex.search}
     #assert len(sys.argv) == 4, "Wrong number of arguments, the form is: mapSize, agent algorithm, enemy alogrithm" 
 
 
@@ -309,9 +309,9 @@ def run(size, algo1, algo2):
                 time.sleep(0.1)
                 y-=1
                 did_Break = True
-        #print(x-1,y-1)
-        # if did_Break:
-            # map[x-1][y-1] = False
+         #print(x-1,y-1)
+        if did_Break:
+             map[x-1][y-1] = False
     '''
     Sample Observation:
     {"DistanceTravelled":0,"TimeAlive":50,"MobsKilled":0,"PlayersKilled":0,"DamageTaken":0,"DamageDealt":0,
