@@ -313,7 +313,7 @@ def run(size, algo1, algo2):
                 y-=1
                 did_Break = True
         if did_Break:
-             map[x-1][y-1] = False
+             map[x][y] = False
 
     '''
     Sample Observation:

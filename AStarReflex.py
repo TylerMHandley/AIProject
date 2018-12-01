@@ -9,8 +9,8 @@ def search(agent, agent_position, enemy_position, grid, map):
     if (manhattan(agent_position, enemy_position) >= 4):
         h_map = [[manhattan([i, ii], [int(enemy_position[0]), int(enemy_position[1])]) for ii in range(0, len(map[0]))] for i in range(0, len(map))]
         closed = set()
-        print(len(map[0]), len(map[1]))
-        print(int(agent_position[0]))
+        #print(len(map[0]), len(map[1]))
+        #print(int(agent_position[0]))
         frindge = [(h_map[int(agent_position[0])][int(agent_position[1])], (int(agent_position[0]), int(agent_position[1])), [(int(agent_position[0]), int(agent_position[1]))])]
         heapq.heapify(frindge)
         path = []
@@ -36,33 +36,33 @@ def search(agent, agent_position, enemy_position, grid, map):
             if node[1] not in closed:
                 i = node[1][0]
                 j = node[1][1]
-                # Below
+                # East
                 if i+1 < len(map):
-                    if map[i + 1][j] != "False" and (i + 1, j) not in closed:
+                    if map[i + 1][j] is True and (i + 1, j) not in closed:
                         # print("Adding node below")
                         temp = path[:]
                         temp.append((i + 1, j))
                         heapq.heappush(frindge, (h_map[i + 1][j] + len(temp), (i + 1, j), temp))
                         num_nodes_expanded += 1
-                # Left
+                # North
                 if j-1 >=0:
-                    if map[i][j - 1] != "False" and (i, j - 1) not in closed:
+                    if map[i][j - 1] is True and (i, j - 1) not in closed:
                         # print("Adding node to the left")
                         temp = path[:]
                         temp.append((i, j - 1))
                         heapq.heappush(frindge, (h_map[i][j - 1] + len(temp), (i, j - 1), temp))
                         num_nodes_expanded += 1
-                # Right
+                # South
                 if j+1 < len(map):
-                    if map[i][j + 1] != "False" and (i, j + 1) not in closed:
+                    if map[i][j + 1] is True and (i, j + 1) not in closed:
                         # print("Adding node to the right")
                         temp = path[:]
                         temp.append((i, j + 1))
                         heapq.heappush(frindge, (h_map[i][j + 1] + len(temp), (i, j + 1), temp))
                         num_nodes_expanded += 1
-                # Above
+                # West
                 if i-1 >= 0:
-                    if map[i - 1][j] != "False" and (i - 1, j) not in closed:
+                    if map[i - 1][j] is True and (i - 1, j) not in closed:
                         # print("Adding node above")
                         temp = path[:]
                         temp.append((i - 1, j))
