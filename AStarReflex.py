@@ -71,7 +71,7 @@ def search(agent, agent_position, enemy_position, grid, map):
 
             closed.add(node[1])
     else:
-        reflex.reflex(agent, agent_position, enemy_position, grid, map)
+        return reflex.reflex(agent, agent_position, enemy_position, grid, map)
 
 ### feel free to add any aditional support functions for your search here ###
 

@@ -204,15 +204,17 @@ def run(size, algo1, algo2):
         if direction == "north":
             ah.sendCommand("movenorth 1")
             position = (pos[0], pos[1]-1)
-        if direction == "south":
+        elif direction == "south":
             ah.sendCommand("movesouth 1")
             position = (pos[0], pos[1]+1)
-        if direction == "west":
+        elif direction == "west":
             ah.sendCommand("movewest 1")
             position = (pos[0]-1, pos[1])
-        if direction == "east":
+        elif direction == "east":
             ah.sendCommand("moveeast 1")
             position = (pos[0]+1, pos[1])
+        else:
+            position = (pos[0], pos[1])
         time.sleep(0.1)
         return position
     def attack(ah, index, pos, map, enemy=False):
@@ -353,11 +355,15 @@ def run(size, algo1, algo2):
         if "lava" in agent_grid:
             print("Enemy Won!")
             agent_score-=100
+            for i in map:
+                print(i)
             return 0
             break
         if "lava" in enemy_grid:
             print("Agent Won!")
             agent_score+=100
+            for i in map:
+                print(i)
             return 1
             break
         
