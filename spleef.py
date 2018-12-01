@@ -310,15 +310,9 @@ def run(size, algo1, algo2):
                 time.sleep(0.1)
                 y-=1
                 did_Break = True
-<<<<<<< HEAD
-         #print(x-1,y-1)
         if did_Break:
              map[x-1][y-1] = False
-=======
-        #print(x-1,y-1)
-        if did_Break:
-            map[x-1][y-1] = False
->>>>>>> 8b646ad61f73e118eb72504774c68ddf62a41dfc
+
     '''
     Sample Observation:
     {"DistanceTravelled":0,"TimeAlive":50,"MobsKilled":0,"PlayersKilled":0,"DamageTaken":0,"DamageDealt":0,
