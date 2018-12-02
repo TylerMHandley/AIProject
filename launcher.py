@@ -6,6 +6,10 @@ iterations = int(sys.argv[1])
 map_size = str(sys.argv[2])
 agentAlgo =  sys.argv[3]
 enemyAlgo = sys.argv[4]
+try:
+    save = sys.argv[5]
+except:
+    save = False
 agent_wins = 0.0
 draws = 0.0
 for i in range(1, iterations+1):
@@ -19,4 +23,9 @@ for i in range(1, iterations+1):
         agent_wins += val
 chance = (agent_wins/iterations) * 100
 draw_chance = (draws/iterations) * 100
-print("An agent with a {} algorithm has a win chance of {}% and a draw chance of {}% against an enemy with a {} algorithm".format(agentAlgo, chance, draw_chance, enemyAlgo))    
+string = "An agent with a {} algorithm has a win chance of {}% and a draw chance of {}% against an enemy with a {} algorithm".format(agentAlgo, chance, draw_chance, enemyAlgo)
+print(string)
+if save == "true":
+    with open("results.txt", "a") as file:
+        file.write(string)
+    print("Save Complete")
