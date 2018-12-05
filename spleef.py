@@ -21,7 +21,7 @@ import AStarReflex
     
 def run(size, algo1, algo2):    
     #algorithms = {"reflex": reflex.reflex, "hiddenMarkov": hiddenMarkov.hiddenMarkov, "minimax":minimax.minimax, "expectimax": expectimax.expectimax}
-    algorithms = {"reflex": reflex.reflex, 'random': randomagent.randommove, 'smartrandom': smartrandomagent.randommove, 'astarreflex': AStarReflex.search}
+    algorithms = {"reflex": reflex.reflex, 'random': randomagent.randommove, 'smartrandom': smartrandomagent.randommove, 'astarreflex': AStarReflex.search, "minimax": minimax.minmax}
     #assert len(sys.argv) == 4, "Wrong number of arguments, the form is: mapSize, agent algorithm, enemy alogrithm" 
 
 
