@@ -25,25 +25,75 @@ import numpy as np
 #For now will use eval func for reflex, but look into future moves
 def minmax(agent, agent_position, enemy_position, grid, map):
 	legalgrid = legalMoves(grid)
+	x, y = agent_position
 	trackScore = -math.inf
+	north_score  = -math.inf
+	south_score  = -math.inf
+	east_score  = -math.inf
+	west_score = -math.inf
 	#placeholder "north"
-	direction = "north"
+	west_break_score = -math.inf
+	east_break_score = -math.inf
+	south_break_score = -math.inf
+	north_break_score = -math.inf
 	#This will just consider the scored that are calculated recursively, so that they 
 	#are just kept track of and returned
-	for action in legalgrid:
-		oldScore = trackScore
-		#the 3 is the depth
-		trackScore = maxvalue(agent, agent_position, enemy_position, 3, grid)
-		if trackScore > oldScore:
-			direction = action
+	if "north" in legalgrid:
+		new_pos = (x, y - 1)
+		north_score = maxvalue( agent, new_pos, enemy_position,2, grid)
+		north_break_score = chooseBreak(agent, new_pos, enemy_position, grid)
+	if "south" in legalgrid:
+		new_pos = (x, y + 1)
+		south_score = maxvalue(agent, new_pos, enemy_position,2, grid)
+		south_break_score = chooseBreak(agent, new_pos, enemy_position, grid)
+	if "west" in legalgrid:
+		new_pos = (x - 1, y)
+		west_score = maxvalue(agent, new_pos, enemy_position,2, grid)
+		west_break_score = chooseBreak(agent, new_pos, enemy_position, grid)
+	if "east" in legalgrid:
+		new_pos = (x + 1, y)
+		east_score = maxvalue(agent, new_pos, enemy_position, 2,  grid)
+		east_break_score = chooseBreak(agent, new_pos, enemy_position, grid)
+	
+	# for action in legalgrid:
+	# 	oldScore = trackScore
+	# 	#the 3 is the depth
+	# 	trackScore = maxvalue(agent, agent_position, enemy_position, 0, grid)
+	# 	if trackScore > oldScore:
+	# 		direction = action
 
+	scores = [north_score, south_score, west_score, east_score]
+	direction = ["north", "south", "west", "east"]
+	breakscores = [north_break_score, south_break_score, west_break_score, east_break_score]
+	max = (-math.inf, "")
+	for i in range(0, len(scores)):
+		if scores[i] > max[0]:
+			max = (scores[i], direction[i])
+		if scores[i] == max[0]:
+			max = (scores[i], choice([max[1], direction[i]]))
 	#the breaking is temperorarly random, replace with the break function later.
-	attackMAX = 0
-	if len(legalgrid) != 0:
-		attackMAX = choice(legalgrid)
-	if len(legalgrid) == 1 or random == attackMAX:
-		attackMAX = 0
-	return direction, attackMAX
+	breakmax = (-math.inf, "")
+	breaksecond = (-math.inf, 0)
+	for i in range(0, len(breakscores)):
+		temp = breakmax[0]
+		tempdirection = breakmax[1]
+		if breakscores[i] > breakmax[0]:
+			breakmax = (breakscores[i], direction[i])
+		if len(breakscores) >= 2:
+			if temp < breakmax[0]:
+				breaksecond = (temp, tempdirection)
+			elif breakscores[i] > breaksecond[0]:
+				breaksecond = (breakscores[i], direction[i])
+
+
+	index = 0
+	if breakmax[1] == max[1] and manhattan_distance(agent_position, enemy_position) <= 4:
+		return max[1], breaksecond[1]
+	elif breakmax[1] != max[1] and manhattan_distance(agent_position, enemy_position) <= 4:
+		return max[1], breakmax[1]
+	else:
+		return max[1], 0
+	return max[1], breakmax
 
 def maxvalue(agent, agent_position, enemy_position, depth, grid):
 	legalgrid = legalMoves(grid)
@@ -152,6 +202,22 @@ def chooseAction(direction, agent, pos, enemy_pos,grid):
     #print(direction, maximum, manhattan_distance(pos, enemy_pos))
     return maximum
 
+def chooseBreak(agent, pos, enemy_pos,grid):
+    time.sleep(0.1)
+    x = [pos[0], pos[1]]
+    x[0] = int(x[0])
+    x[1] = int(x[1])
+
+    maximum = 10
+
+    if manhattan_distance(pos, enemy_pos) == 0:
+        maximum += 100
+    elif manhattan_distance(pos, enemy_pos) == 1:
+        maximum += 3
+    else:
+        maximum += 2 / manhattan_distance(pos, enemy_pos)
+
+    return maximum
 
 def manhattan_distance(start, end):
     sx, sy = start
